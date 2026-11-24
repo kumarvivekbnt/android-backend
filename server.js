@@ -4,19 +4,30 @@ const http = require("http");
 const server = http.createServer((req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  if (req.url === "/health" && req.method === "GET") {
+  if (req.method === "OPTIONS") {
     res.writeHead(200);
-    res.end(JSON.stringify({
-      status: "ok",
-      message: "Backend is running"
-    }));
-    return;
+    return res.end();
   }
 
-  res.writeHead(404);
+  if (req.method === "GET" || req.method === "HEAD") {
+    res.writeHead(200);
+
+    const data = JSON.stringify({
+      status: "ok",
+      message: "Backend is running",
+      path: req.url
+    });
+
+    return req.method === "HEAD" ? res.end() : res.end(data);
+  }
+
+  res.writeHead(405);
   res.end(JSON.stringify({
-    error: "Not found"
+    status: "error",
+    message: "Method not allowed"
   }));
 });
 
