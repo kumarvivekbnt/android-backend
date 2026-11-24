@@ -4,8 +4,8 @@ const http = require("http");
 const server = http.createServer((req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, HEAD, OPTIONS");
 
   if (req.method === "OPTIONS") {
     res.writeHead(200);
@@ -14,20 +14,24 @@ const server = http.createServer((req, res) => {
 
   if (req.method === "GET" || req.method === "HEAD") {
     res.writeHead(200);
-
-    const data = JSON.stringify({
+    return res.end(JSON.stringify({
       status: "ok",
-      message: "Backend is running",
-      path: req.url
-    });
-
-    return req.method === "HEAD" ? res.end() : res.end(data);
+      message: "Backend is running"
+    }));
   }
 
-  res.writeHead(405);
+  if (req.method === "POST" && req.url === "/test") {
+    res.writeHead(200);
+    return res.end(JSON.stringify({
+      status: "ok",
+      message: "POST test successful"
+    }));
+  }
+
+  res.writeHead(404);
   res.end(JSON.stringify({
     status: "error",
-    message: "Method not allowed"
+    message: "Endpoint not found"
   }));
 });
 
